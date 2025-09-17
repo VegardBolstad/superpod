@@ -3,6 +3,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Checkbox } from "./ui/checkbox";
+import { SmartTagSearch } from "./smart-tag-search";
 import { Search, Filter, X, RotateCcw, Bookmark, ChevronUp, ChevronDown } from "lucide-react";
 
 interface SearchInterfaceProps {
@@ -152,10 +153,10 @@ export function SearchInterface({
       {/* Collapsible Filters */}
       <div className={`space-y-3 transition-all duration-300 ${isCollapsed ? 'max-h-0 overflow-hidden opacity-0' : 'max-h-[500px] opacity-100'}`}>
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between">
             <h4 className="flex items-center gap-2">
               <Filter className="w-4 h-4" />
-              Tags
+              Smart Tag Search
             </h4>
             {selectedTags.length > 0 && (
               <button
@@ -166,21 +167,36 @@ export function SearchInterface({
               </button>
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {availableTags.map(tag => (
-              <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-                {selectedTags.includes(tag) && (
-                  <X className="w-3 h-3 ml-1" />
-                )}
-              </Badge>
-            ))}
-          </div>
+          
+          {/* Smart Tag Search Component */}
+          <SmartTagSearch
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+            placeholder="Type to search tags..."
+            maxTags={8}
+          />
+          
+          {/* Keep old static tags as fallback for now */}
+          <details className="mt-4">
+            <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+              Browse all tags
+            </summary>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {availableTags.map(tag => (
+                <Badge
+                  key={tag}
+                  variant={selectedTags.includes(tag) ? "default" : "outline"}
+                  className="cursor-pointer text-xs"
+                  onClick={() => toggleTag(tag)}
+                >
+                  {tag}
+                  {selectedTags.includes(tag) && (
+                    <X className="w-3 h-3 ml-1" />
+                  )}
+                </Badge>
+              ))}
+            </div>
+          </details>
         </div>
 
         <div>

@@ -4,7 +4,6 @@
 
 import { 
   mockPodcastSegments, 
-  mockSuggestions, 
   mockSuperPods,
   mockAISettings,
   mockAudioData,
@@ -12,7 +11,7 @@ import {
   getMockSegmentsByIds,
   mockApiResponses
 } from '../data/mockData';
-import { PodcastSegment, SuperPod } from '../App';
+import { SuperPod } from '../App';
 
 // Simulate network delay
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
@@ -20,6 +19,62 @@ const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, m
 // Mock API class that simulates real backend
 export class MockApiService {
   
+  // ===== TAG SEARCH =====
+  async searchTags(query: string, limit: number = 10) {
+    await delay(200);
+
+    try {
+      const allTags = [
+        "technology", "AI", "startup", "innovation", "ethics", "future", "business", "psychology",
+        "machine learning", "artificial intelligence", "deep learning", "neural networks",
+        "blockchain", "cryptocurrency", "web3", "decentralization", "smart contracts",
+        "remote work", "workplace culture", "productivity", "collaboration", "team dynamics",
+        "sustainable business", "green tech", "climate change", "renewable energy", "ESG",
+        "creative technology", "digital art", "generative AI", "design thinking", "UX/UI",
+        "entrepreneurship", "venture capital", "funding", "scaling", "growth hacking",
+        "data science", "analytics", "big data", "cloud computing", "cybersecurity",
+        "mobile development", "web development", "software engineering", "DevOps", "agile",
+        "leadership", "management", "strategy", "decision making", "problem solving",
+        "marketing", "branding", "social media", "content creation", "storytelling",
+        "finance", "investing", "cryptocurrency", "fintech", "economics", "market trends"
+      ];
+
+      const filtered = allTags.filter(tag => 
+        tag.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, limit);
+
+      return {
+        success: true,
+        data: filtered.map(tag => ({
+          name: tag,
+          count: Math.floor(Math.random() * 100) + 10, // Mock usage count
+          category: this.getTagCategory(tag)
+        }))
+      };
+    } catch (error) {
+      return mockApiResponses.error('Tag search failed', 500);
+    }
+  }
+
+  private getTagCategory(tag: string): string {
+    if (['AI', 'machine learning', 'artificial intelligence', 'deep learning', 'neural networks'].includes(tag)) {
+      return 'AI & ML';
+    }
+    if (['blockchain', 'cryptocurrency', 'web3', 'decentralization', 'smart contracts'].includes(tag)) {
+      return 'Blockchain & Web3';
+    }
+    if (['remote work', 'workplace culture', 'productivity', 'collaboration'].includes(tag)) {
+      return 'Work & Culture';
+    }
+    if (['sustainable business', 'green tech', 'climate change', 'renewable energy'].includes(tag)) {
+      return 'Sustainability';
+    }
+    if (['entrepreneurship', 'venture capital', 'startup', 'scaling'].includes(tag)) {
+      return 'Business & Startup';
+    }
+    return 'General';
+  }
+
   // ===== SEARCH & DISCOVERY =====
   async searchPodcasts(params: {
     query: string;
@@ -294,7 +349,7 @@ export const mockApiService = new MockApiService();
 
 // Helper function to switch between mock and real API
 export const getApiService = () => {
-  const USE_MOCK_API = process.env.REACT_APP_USE_MOCK_API !== 'false';
+  const USE_MOCK_API = (window as any).__REACT_APP_USE_MOCK_API__ !== 'false';
   
   if (USE_MOCK_API) {
     console.log('🎭 Using Mock API - Set REACT_APP_USE_MOCK_API=false to use real backend');
