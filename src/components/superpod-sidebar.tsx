@@ -334,7 +334,7 @@ export function SuperPodSidebar({
 
         {/* Saved Searches - Fixed at bottom */}
         {onLoadSavedSearch && (
-          <div className="border-t bg-sidebar/50 p-4">
+          <div className="bg-sidebar/50 p-4">
             <SavedSearches onLoadSearch={onLoadSavedSearch} />
           </div>
         )}

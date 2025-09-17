@@ -33,12 +33,9 @@ export function SavedSearches({ onLoadSearch }: SavedSearchesProps) {
   const loadSavedSearches = async () => {
     setIsLoading(true);
     try {
-      console.log('Loading saved searches...');
       const response = await mockApiService.getSavedSearches();
-      console.log('Saved searches response:', response);
       if (response.success) {
         setSavedSearches(response.data);
-        console.log('Set saved searches:', response.data);
       }
     } catch (error) {
       console.error('Failed to load saved searches:', error);
@@ -77,10 +74,9 @@ export function SavedSearches({ onLoadSearch }: SavedSearchesProps) {
     return parts.join(' • ');
   };
 
-  // Always show the section for debugging - we can hide it later if needed
-  // if (savedSearches.length === 0 && !isLoading) {
-  //   return null; // Don't show section if no saved searches
-  // }
+  if (savedSearches.length === 0 && !isLoading) {
+    return null; // Don't show section if no saved searches
+  }
 
   return (
     <div className="space-y-3">

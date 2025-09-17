@@ -207,7 +207,7 @@ export function SearchInterface({
   return (
     <div className="space-y-4 p-4 bg-card rounded-lg border">
       <div className="flex gap-2">
-        <div className={`relative flex-1 ${focusSection === 'search' ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-md' : ''}`}>
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             ref={searchInputRef}
@@ -249,17 +249,6 @@ export function SearchInterface({
         </div>
       )}
 
-      {/* Keyboard Navigation Help */}
-      {(focusSection === 'search' || focusSection === 'tags') && (
-        <div className="text-xs text-muted-foreground">
-          {focusSection === 'search' && (
-            <span>Press Tab to navigate to tags • Ctrl+Esc to reset • Ctrl+S to save</span>
-          )}
-          {focusSection === 'tags' && (
-            <span>Type to search tags • Tab to navigate to categories • Ctrl+Esc to reset • Ctrl+S to save</span>
-          )}
-        </div>
-      )}
 
       {/* Collapsible Filters */}
       <div className={`space-y-3 transition-all duration-300 ${isCollapsed ? 'max-h-0 overflow-hidden opacity-0' : 'max-h-[500px] opacity-100'}`}>
@@ -280,10 +269,7 @@ export function SearchInterface({
           </div>
           
           {/* Smart Tag Search Component */}
-          <div 
-            ref={tagSearchRef}
-            className={`${focusSection === 'tags' ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-md p-1' : ''}`}
-          >
+          <div ref={tagSearchRef}>
             <SmartTagSearch
               selectedTags={selectedTags}
               onTagsChange={setSelectedTags}
@@ -332,11 +318,7 @@ export function SearchInterface({
               <Badge
                 key={category}
                 variant={selectedCategories.includes(category) ? "default" : "outline"}
-                className={`cursor-pointer transition-all ${
-                  focusedCategoryIndex === index 
-                    ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
-                    : ''
-                }`}
+                className="cursor-pointer text-xs"
                 onClick={() => toggleCategory(category)}
               >
                 {category}
@@ -346,11 +328,6 @@ export function SearchInterface({
               </Badge>
             ))}
           </div>
-          {focusSection === 'categories' && focusedCategoryIndex >= 0 && (
-            <div className="text-xs text-muted-foreground mt-1">
-              Press Space to toggle • Tab to cycle through categories/sources • Ctrl+Esc to reset • Ctrl+S to save
-            </div>
-          )}
         </div>
 
         <div>
@@ -376,11 +353,7 @@ export function SearchInterface({
             {availableSources.map((source, index) => (
               <div 
                 key={source} 
-                className={`flex items-center space-x-2 p-1 rounded transition-all ${
-                  focusSection === 'sources' && focusedSourceIndex === index
-                    ? 'ring-2 ring-primary ring-offset-2 ring-offset-background bg-accent/50'
-                    : ''
-                }`}
+                className="flex items-center space-x-2 p-1 rounded"
               >
                 <Checkbox
                   id={`source-${source}`}
@@ -396,11 +369,6 @@ export function SearchInterface({
               </div>
             ))}
           </div>
-          {focusSection === 'sources' && focusedSourceIndex >= 0 && (
-            <div className="text-xs text-muted-foreground mt-1">
-              Press Space to toggle • Tab to cycle through categories/sources • Ctrl+Esc to reset • Ctrl+S to save
-            </div>
-          )}
         </div>
         
         {/* Control Buttons */}

@@ -13,6 +13,7 @@ import { Card } from "./components/ui/card";
 import { Badge } from "./components/ui/badge";
 import { Mic, Sparkles, Menu, X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
+import { mockApiService } from "./services/mockApi";
 
 export interface PodcastSegment {
   id: string;
@@ -316,9 +317,29 @@ export default function App() {
     toast.info("All sources deselected");
   };
 
-  const handleSaveSearch = () => {
+  const handleSaveSearch = async () => {
     if (currentQuery || selectedSources.length > 0) {
-      toast.success(`Search "${currentQuery || 'filters'}" saved to bookmarks`);
+      try {
+        // Get current search state from SearchInterface
+        const searchName = currentQuery || "Custom Search";
+        const searchData = {
+          name: searchName,
+          query: currentQuery,
+          tags: [], // We'd need to pass selected tags from SearchInterface
+          categories: [], // We'd need to pass selected categories from SearchInterface  
+          sources: selectedSources
+        };
+
+        const response = await mockApiService.saveSearch(searchData);
+        if (response.success) {
+          toast.success(`Search "${searchName}" saved to bookmarks`);
+        } else {
+          toast.error("Failed to save search");
+        }
+      } catch (error) {
+        console.error("Error saving search:", error);
+        toast.error("Failed to save search");
+      }
     } else {
       toast.info("Nothing to save - search for something first");
     }
