@@ -15,7 +15,12 @@ interface SearchInterfaceProps {
   onClearAllCategories: () => void;
   onSelectAllSources: () => void;
   onSelectNoneSources: () => void;
-  onSaveSearch: () => void;
+  onSaveSearch: (searchData: {
+    query: string;
+    tags: string[];
+    categories: string[];
+    sources: string[];
+  }) => void;
   onResetSearch: () => void;
   onToggleCollapse?: () => void;
 }
@@ -108,31 +113,36 @@ export function SearchInterface({
 
   // Keep only essential keyboard shortcuts
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Only handle global shortcuts when not typing in inputs
+    // Handle Ctrl+S globally, even when typing in inputs
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onSaveSearch) {
+        onSaveSearch({
+          query,
+          tags: selectedTags,
+          categories: selectedCategories,
+          sources: selectedSources
+        });
+      }
+      return;
+    }
+
+    // Only handle other shortcuts when not typing in inputs
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       return;
     }
 
-    if (e.ctrlKey || e.metaKey) {
-      switch (e.key) {
-        case 'Escape':
-          e.preventDefault();
-          handleReset();
-          break;
-        case 's':
-          e.preventDefault();
-          if (onSaveSearch) {
-            onSaveSearch();
-          }
-          break;
-      }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Escape') {
+      e.preventDefault();
+      handleReset();
     }
-  }, [handleReset, onSaveSearch]);
+  }, [handleReset, onSaveSearch, query, selectedTags, selectedCategories, selectedSources]);
 
-  // Add keyboard event listeners
+  // Add keyboard event listeners with capture to ensure we get Ctrl+S first
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [handleKeyDown]);
 
 
@@ -208,8 +218,8 @@ export function SearchInterface({
           />
           
           {/* Keep old static tags as fallback for now */}
-          <details className="mt-4" tabIndex={-1}>
-            <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground" tabIndex={-1}>
+          <details className="mt-4">
+            <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
               Browse all tags
             </summary>
             <div className="flex flex-wrap gap-2 mt-2">
@@ -217,8 +227,15 @@ export function SearchInterface({
                 <Badge
                   key={tag}
                   variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className="cursor-pointer text-xs"
+                  className="cursor-pointer text-xs focus:ring-2 focus:ring-primary focus:ring-offset-2 outline-none"
+                  tabIndex={0}
                   onClick={() => toggleTag(tag)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleTag(tag);
+                    }
+                  }}
                 >
                   {tag}
                   {selectedTags.includes(tag) && (
@@ -247,8 +264,15 @@ export function SearchInterface({
               <Badge
                 key={category}
                 variant={selectedCategories.includes(category) ? "default" : "outline"}
-                className="cursor-pointer text-xs"
+                className="cursor-pointer text-xs focus:ring-2 focus:ring-primary focus:ring-offset-2 outline-none"
+                tabIndex={0}
                 onClick={() => toggleCategory(category)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleCategory(category);
+                  }
+                }}
               >
                 {category}
                 {selectedCategories.includes(category) && (
@@ -314,7 +338,12 @@ export function SearchInterface({
           <Button
             variant="outline"
             size="sm"
-            onClick={onSaveSearch}
+            onClick={() => onSaveSearch({
+              query,
+              tags: selectedTags,
+              categories: selectedCategories,
+              sources: selectedSources
+            })}
             className="h-8 text-xs"
           >
             <Bookmark className="w-3 h-3 mr-1" />

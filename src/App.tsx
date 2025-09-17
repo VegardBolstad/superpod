@@ -318,20 +318,24 @@ export default function App() {
     toast.info("All sources deselected");
   };
 
-  const handleSaveSearch = async () => {
-    if (currentQuery || selectedSources.length > 0) {
+  const handleSaveSearch = async (searchData: {
+    query: string;
+    tags: string[];
+    categories: string[];
+    sources: string[];
+  }) => {
+    if (searchData.query || searchData.tags.length > 0 || searchData.categories.length > 0 || searchData.sources.length > 0) {
       try {
-        // Get current search state from SearchInterface
-        const searchName = currentQuery || "Custom Search";
-        const searchData = {
+        const searchName = searchData.query || `${searchData.tags.length} tags, ${searchData.categories.length} categories`;
+        const saveData = {
           name: searchName,
-          query: currentQuery,
-          tags: [], // We'd need to pass selected tags from SearchInterface
-          categories: [], // We'd need to pass selected categories from SearchInterface  
-          sources: selectedSources
+          query: searchData.query,
+          tags: searchData.tags,
+          categories: searchData.categories,
+          sources: searchData.sources
         };
 
-        const response = await mockApiService.saveSearch(searchData);
+        const response = await mockApiService.saveSearch(saveData);
         if (response.success) {
           toast.success(`Search "${searchName}" saved to bookmarks`);
           // Trigger refresh of saved searches component
