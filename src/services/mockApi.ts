@@ -36,7 +36,11 @@ export class MockApiService {
         "mobile development", "web development", "software engineering", "DevOps", "agile",
         "leadership", "management", "strategy", "decision making", "problem solving",
         "marketing", "branding", "social media", "content creation", "storytelling",
-        "finance", "investing", "cryptocurrency", "fintech", "economics", "market trends"
+        "finance", "investing", "cryptocurrency", "fintech", "economics", "market trends",
+        "philosophy", "comedy", "entertainment", "education", "science", "health", "fitness",
+        "creativity", "music", "art", "design", "photography", "writing", "journalism",
+        "politics", "history", "culture", "society", "relationships", "personal development",
+        "mindfulness", "meditation", "spirituality", "travel", "food", "cooking", "lifestyle"
       ];
 
       const filtered = allTags.filter(tag => 
@@ -63,14 +67,26 @@ export class MockApiService {
     if (['blockchain', 'cryptocurrency', 'web3', 'decentralization', 'smart contracts'].includes(tag)) {
       return 'Blockchain & Web3';
     }
-    if (['remote work', 'workplace culture', 'productivity', 'collaboration'].includes(tag)) {
+    if (['remote work', 'workplace culture', 'productivity', 'collaboration', 'team dynamics'].includes(tag)) {
       return 'Work & Culture';
     }
-    if (['sustainable business', 'green tech', 'climate change', 'renewable energy'].includes(tag)) {
+    if (['sustainable business', 'green tech', 'climate change', 'renewable energy', 'ESG'].includes(tag)) {
       return 'Sustainability';
     }
-    if (['entrepreneurship', 'venture capital', 'startup', 'scaling'].includes(tag)) {
+    if (['entrepreneurship', 'venture capital', 'startup', 'scaling', 'funding', 'business'].includes(tag)) {
       return 'Business & Startup';
+    }
+    if (['philosophy', 'psychology', 'mindfulness', 'meditation', 'spirituality', 'personal development'].includes(tag)) {
+      return 'Philosophy & Mind';
+    }
+    if (['comedy', 'entertainment', 'music', 'art', 'creativity', 'design', 'photography'].includes(tag)) {
+      return 'Arts & Entertainment';
+    }
+    if (['education', 'science', 'history', 'journalism', 'writing'].includes(tag)) {
+      return 'Education & Science';
+    }
+    if (['health', 'fitness', 'lifestyle', 'food', 'cooking', 'travel'].includes(tag)) {
+      return 'Health & Lifestyle';
     }
     return 'General';
   }

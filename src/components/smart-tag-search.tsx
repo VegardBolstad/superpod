@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Search, X, Tag, Hash } from 'lucide-react';
 import { mockApiService } from '../services/mockApi';
 
@@ -30,6 +28,7 @@ export function SmartTagSearch({
   const [searchQuery, setSearchQuery] = useState('');
   const [tagResults, setTagResults] = useState<TagResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounced search for tags
@@ -61,6 +60,11 @@ export function SmartTagSearch({
     return () => clearTimeout(timeoutId);
   }, [searchQuery, selectedTags]);
 
+  // Reset selected index when results change
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [tagResults]);
+
   const handleAddTag = (tagName: string) => {
     if (selectedTags.length >= maxTags) return;
     
@@ -69,8 +73,13 @@ export function SmartTagSearch({
     }
     
     setSearchQuery('');
+    setTagResults([]);
     setIsOpen(false);
-    inputRef.current?.focus();
+    
+    // Focus after a brief delay to ensure popover is closed
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -78,9 +87,43 @@ export function SmartTagSearch({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && searchQuery.trim() && tagResults.length > 0) {
+    const availableOptions = tagResults.length > 0 ? tagResults : 
+      (searchQuery.trim() ? [{ name: searchQuery, count: 0, category: 'Custom' }] : []);
+
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
-      handleAddTag(tagResults[0].name);
+      setSelectedIndex(prev => {
+        const next = prev + 1;
+        return next >= availableOptions.length ? 0 : next;
+      });
+      if (!isOpen && availableOptions.length > 0) {
+        setIsOpen(true);
+      }
+    }
+    
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => {
+        const next = prev - 1;
+        return next < 0 ? availableOptions.length - 1 : next;
+      });
+      if (!isOpen && availableOptions.length > 0) {
+        setIsOpen(true);
+      }
+    }
+    
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && availableOptions[selectedIndex]) {
+        handleAddTag(availableOptions[selectedIndex].name);
+      } else if (searchQuery.trim() && availableOptions.length > 0) {
+        handleAddTag(availableOptions[0].name);
+      }
+    }
+    
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+      setSelectedIndex(-1);
     }
     
     if (e.key === 'Backspace' && !searchQuery && selectedTags.length > 0) {
@@ -101,6 +144,14 @@ export function SmartTagSearch({
         return '🌱';
       case 'Business & Startup':
         return '🚀';
+      case 'Philosophy & Mind':
+        return '🧠';
+      case 'Arts & Entertainment':
+        return '🎭';
+      case 'Education & Science':
+        return '📚';
+      case 'Health & Lifestyle':
+        return '💪';
       default:
         return '🏷️';
     }
@@ -133,83 +184,98 @@ export function SmartTagSearch({
       )}
 
       {/* Smart Search Input */}
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              ref={inputRef}
-              placeholder={selectedTags.length >= maxTags ? `Max ${maxTags} tags reached` : placeholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsOpen(true)}
-              className="pl-10 pr-4"
-              disabled={selectedTags.length >= maxTags}
-            />
-            {selectedTags.length > 0 && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
-                {selectedTags.length}/{maxTags}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10 pointer-events-none" />
+        <Input
+          ref={inputRef}
+          placeholder={selectedTags.length >= maxTags ? `Max ${maxTags} tags reached` : placeholder}
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            if (e.target.value.trim()) {
+              setIsOpen(true);
+            }
+          }}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsOpen(true)}
+          onBlur={(e) => {
+            // Don't close if clicking on dropdown
+            if (!e.relatedTarget?.closest('[data-dropdown]')) {
+              setTimeout(() => setIsOpen(false), 150);
+            }
+          }}
+          className="pl-10 pr-16"
+          disabled={selectedTags.length >= maxTags}
+        />
+        
+        {selectedTags.length > 0 && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
+            {selectedTags.length}/{maxTags}
+          </div>
+        )}
+
+        {/* Dropdown Results */}
+        {isOpen && (searchQuery.trim() || tagResults.length > 0) && (
+          <div 
+            data-dropdown
+            className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-64 overflow-y-auto"
+          >
+            {isLoading && (
+              <div className="p-4 text-sm text-muted-foreground text-center">
+                Searching tags...
+              </div>
+            )}
+            
+            {!isLoading && searchQuery && tagResults.length === 0 && (
+              <div className="p-1">
+                <button
+                  onClick={() => handleAddTag(searchQuery)}
+                  className={`w-full text-center py-4 hover:bg-accent rounded ${
+                    selectedIndex === 0 ? 'bg-accent' : ''
+                  }`}
+                  disabled={selectedTags.length >= maxTags}
+                >
+                  <Tag className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">No tags found for "{searchQuery}"</p>
+                  <div className="text-sm font-medium mt-2">
+                    Create "{searchQuery}" tag
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {!isLoading && tagResults.length > 0 && (
+              <div className="p-1">
+                <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-1">
+                  Suggested Tags
+                </div>
+                {tagResults.map((tag, index) => (
+                  <button
+                    key={tag.name}
+                    onClick={() => handleAddTag(tag.name)}
+                    className={`w-full flex items-center justify-between p-2 hover:bg-accent rounded text-left transition-colors ${
+                      selectedIndex === index ? 'bg-accent' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{getCategoryIcon(tag.category)}</span>
+                      <div>
+                        <span className="font-medium">{tag.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          {tag.category}
+                        </span>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {tag.count}
+                    </Badge>
+                  </button>
+                ))}
               </div>
             )}
           </div>
-        </PopoverTrigger>
-
-        <PopoverContent className="w-[400px] p-0" align="start">
-          <Command shouldFilter={false}>
-            <CommandList>
-              {isLoading && (
-                <div className="p-4 text-sm text-muted-foreground text-center">
-                  Searching tags...
-                </div>
-              )}
-              
-              {!isLoading && searchQuery && tagResults.length === 0 && (
-                <CommandEmpty>
-                  <div className="text-center py-4">
-                    <Tag className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">No tags found for "{searchQuery}"</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => handleAddTag(searchQuery)}
-                      disabled={selectedTags.length >= maxTags}
-                    >
-                      Create "{searchQuery}" tag
-                    </Button>
-                  </div>
-                </CommandEmpty>
-              )}
-
-              {!isLoading && tagResults.length > 0 && (
-                <CommandGroup heading="Suggested Tags">
-                  {tagResults.map(tag => (
-                    <CommandItem
-                      key={tag.name}
-                      onSelect={() => handleAddTag(tag.name)}
-                      className="flex items-center justify-between cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{getCategoryIcon(tag.category)}</span>
-                        <div>
-                          <span className="font-medium">{tag.name}</span>
-                          <span className="text-xs text-muted-foreground ml-2">
-                            {tag.category}
-                          </span>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {tag.count}
-                      </Badge>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
 
       {/* Quick Stats */}
       {selectedTags.length > 0 && (
