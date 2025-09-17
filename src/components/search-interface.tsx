@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -37,6 +37,7 @@ export function SearchInterface({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(-1);
 
   const availableTags = [
     "technology", "business", "health", "science", "education", 
@@ -103,8 +104,50 @@ export function SearchInterface({
     setSelectedTags([]);
     setSelectedCategories([]);
     setSelectedSources([]);
+    setFocusedCategoryIndex(-1);
     onResetSearch();
   };
+
+  // Keyboard navigation handlers
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Only handle shortcuts when not typing in an input
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault();
+      setFocusedCategoryIndex(prev => {
+        const next = prev + 1;
+        return next >= availableCategories.length ? 0 : next;
+      });
+    }
+
+    if (e.key === ' ' && focusedCategoryIndex >= 0) {
+      e.preventDefault();
+      const category = availableCategories[focusedCategoryIndex];
+      toggleCategory(category);
+    }
+
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'Escape':
+          e.preventDefault();
+          handleReset();
+          break;
+        case 's':
+          e.preventDefault();
+          onSaveSearch();
+          break;
+      }
+    }
+  }, [focusedCategoryIndex, availableCategories, toggleCategory, handleReset, onSaveSearch]);
+
+  // Add keyboard event listeners
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <div className="space-y-4 p-4 bg-card rounded-lg border">
@@ -212,11 +255,15 @@ export function SearchInterface({
             )}
           </div>
           <div className="flex flex-wrap gap-2">
-            {availableCategories.map(category => (
+            {availableCategories.map((category, index) => (
               <Badge
                 key={category}
                 variant={selectedCategories.includes(category) ? "default" : "outline"}
-                className="cursor-pointer"
+                className={`cursor-pointer transition-all ${
+                  focusedCategoryIndex === index 
+                    ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
+                    : ''
+                }`}
                 onClick={() => toggleCategory(category)}
               >
                 {category}
@@ -226,6 +273,11 @@ export function SearchInterface({
               </Badge>
             ))}
           </div>
+          {focusedCategoryIndex >= 0 && (
+            <div className="text-xs text-muted-foreground mt-1">
+              Press Space to select/deselect • Tab to cycle • Ctrl+Esc to reset • Ctrl+S to save
+            </div>
+          )}
         </div>
 
         <div>

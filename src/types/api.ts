@@ -217,3 +217,13 @@ export interface WebSocketEvents {
     inviterName: string; 
   };
 }
+
+export interface SavedSearch {
+  id: string;
+  name: string;
+  query: string;
+  tags: string[];
+  categories: string[];
+  sources: string[];
+  createdAt: string;
+}

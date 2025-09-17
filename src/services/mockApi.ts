@@ -12,6 +12,7 @@ import {
   mockApiResponses
 } from '../data/mockData';
 import { SuperPod } from '../App';
+import { SavedSearch } from '../types/api';
 
 // Simulate network delay
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
@@ -340,6 +341,85 @@ export class MockApiService {
     return {
       success: true,
       data: audioData
+    };
+  }
+
+  // ===== SAVED SEARCHES =====
+  private savedSearches: SavedSearch[] = [
+    {
+      id: 'search_1',
+      name: 'AI & Innovation',
+      query: 'artificial intelligence',
+      tags: ['AI', 'innovation', 'technology'],
+      categories: ['Interview', 'Documentary'],
+      sources: ['Public', 'Spotify'],
+      createdAt: '2024-12-15T10:30:00Z'
+    },
+    {
+      id: 'search_2', 
+      name: 'Business Psychology',
+      query: 'leadership',
+      tags: ['psychology', 'business', 'leadership'],
+      categories: ['Case Study'],
+      sources: ['Public'],
+      createdAt: '2024-12-14T14:20:00Z'
+    }
+  ];
+
+  async getSavedSearches() {
+    await delay(300);
+    
+    return {
+      success: true,
+      data: [...this.savedSearches] // Return copy to prevent mutations
+    };
+  }
+
+  async saveSearch(searchData: {
+    name: string;
+    query: string;
+    tags: string[];
+    categories: string[];
+    sources: string[];
+  }) {
+    await delay(400);
+
+    try {
+      const newSearch: SavedSearch = {
+        id: `search_${Date.now()}`,
+        ...searchData,
+        createdAt: new Date().toISOString()
+      };
+
+      this.savedSearches.unshift(newSearch); // Add to beginning
+      
+      // Keep only last 10 saved searches
+      if (this.savedSearches.length > 10) {
+        this.savedSearches = this.savedSearches.slice(0, 10);
+      }
+
+      return {
+        success: true,
+        data: newSearch
+      };
+    } catch (error) {
+      return mockApiResponses.error('Failed to save search', 500);
+    }
+  }
+
+  async deleteSavedSearch(searchId: string) {
+    await delay(250);
+
+    const index = this.savedSearches.findIndex(s => s.id === searchId);
+    if (index === -1) {
+      return mockApiResponses.error('Saved search not found', 404);
+    }
+
+    this.savedSearches.splice(index, 1);
+
+    return {
+      success: true,
+      data: { message: 'Saved search deleted successfully' }
     };
   }
 
