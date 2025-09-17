@@ -219,7 +219,7 @@ export function KnowledgeGraph({
       </div>
 
       {/* Top suggestions */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-4">
+      <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-4 sm:px-20">
         <div className="flex gap-2 flex-wrap justify-center">
           {suggestions.top.map(suggestion => (
             <Button
@@ -237,7 +237,7 @@ export function KnowledgeGraph({
 
       {/* Left suggestions */}
       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mt-12">
           {suggestions.left.map(suggestion => (
             <Button
               key={suggestion}
@@ -254,7 +254,7 @@ export function KnowledgeGraph({
 
       {/* Right suggestions */}
       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mt-12">
           {suggestions.right.map(suggestion => (
             <Button
               key={suggestion}
