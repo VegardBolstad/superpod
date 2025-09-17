@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiService } from '../services/api';
+import { mockApiService } from '../services/mockApi';
 import { SuperPod, PodcastSegment } from '../App';
 
 export function useSuperPods() {
@@ -17,8 +17,12 @@ export function useSuperPods() {
     setError(null);
     
     try {
-      const pods = await apiService.getUserSuperPods();
-      setSuperPods(pods);
+      const response = await mockApiService.getUserSuperPods();
+      if (response.success && 'data' in response) {
+        setSuperPods(response.data);
+      } else {
+        setError('Failed to load SuperPods');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load SuperPods');
     } finally {
@@ -29,13 +33,17 @@ export function useSuperPods() {
   const createSuperPod = useCallback(async (name: string, segments: PodcastSegment[]) => {
     try {
       const segmentIds = segments.map(s => s.id);
-      const newSuperPod = await apiService.createSuperPod({
+      const response = await mockApiService.createSuperPod({
         name,
         segments: segmentIds,
       });
       
-      setSuperPods(prev => [...prev, newSuperPod]);
-      return newSuperPod;
+      if (response.success && 'data' in response) {
+        setSuperPods(prev => [...prev, response.data]);
+        return response.data;
+      } else {
+        throw new Error('Failed to create SuperPod');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create SuperPod');
       throw err;
@@ -44,9 +52,13 @@ export function useSuperPods() {
 
   const updateSuperPod = useCallback(async (id: string, updates: Partial<SuperPod>) => {
     try {
-      const updated = await apiService.updateSuperPod(id, updates);
-      setSuperPods(prev => prev.map(pod => pod.id === id ? updated : pod));
-      return updated;
+      const response = await mockApiService.updateSuperPod(id, updates);
+      if (response.success && 'data' in response) {
+        setSuperPods(prev => prev.map(pod => pod.id === id ? response.data : pod));
+        return response.data;
+      } else {
+        throw new Error('Failed to update SuperPod');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update SuperPod');
       throw err;
@@ -55,8 +67,12 @@ export function useSuperPods() {
 
   const deleteSuperPod = useCallback(async (id: string) => {
     try {
-      await apiService.deleteSuperPod(id);
-      setSuperPods(prev => prev.filter(pod => pod.id !== id));
+      const response = await mockApiService.deleteSuperPod(id);
+      if (response.success) {
+        setSuperPods(prev => prev.filter(pod => pod.id !== id));
+      } else {
+        throw new Error('Failed to delete SuperPod');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete SuperPod');
       throw err;

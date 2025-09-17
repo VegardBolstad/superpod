@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { apiService } from '../services/api';
+import { mockApiService } from '../services/mockApi';
 import { PodcastSegment } from '../App';
 
 interface SearchState {
@@ -37,15 +37,23 @@ export function usePodcastSearch() {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      const response = await apiService.searchPodcasts(params);
+      const response = await mockApiService.searchPodcasts(params);
       
-      setState({
-        results: response.segments,
-        loading: false,
-        error: null,
-        totalResults: response.totalResults,
-        suggestions: response.suggestions,
-      });
+      if (response.success && 'data' in response) {
+        setState({
+          results: response.data.segments,
+          loading: false,
+          error: null,
+          totalResults: response.data.totalResults,
+          suggestions: response.data.suggestions || [],
+        });
+      } else {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: ('error' in response ? response.error.message : 'Search failed'),
+        }));
+      }
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         setState(prev => ({
