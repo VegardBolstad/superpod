@@ -47,8 +47,8 @@ export function SegmentPreview({
   if (!isOpen || !segment) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl max-h-[90vh] bg-background">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 pb-24">
+      <Card className="w-full max-w-4xl max-h-[calc(100vh-8rem)] bg-background">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex-1 min-w-0">
             <h2 className="truncate">{segment.title}</h2>
@@ -64,7 +64,7 @@ export function SegmentPreview({
           </Button>
         </div>
 
-        <div className="flex flex-col h-[calc(90vh-80px)]">
+        <div className="flex flex-col h-[calc(100vh-12rem)]">
           {/* Tabs */}
           <div className="border-b">
             <div className="flex">
@@ -178,17 +178,21 @@ export function SegmentPreview({
           </ScrollArea>
 
           {/* Actions */}
-          <div className="border-t p-4">
-            <div className="flex gap-2 justify-end">
+          <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
+            <div className="flex gap-3 justify-end">
               <Button
                 variant="outline"
+                size="lg"
                 onClick={() => onPlay(segment)}
+                className="min-w-[120px]"
               >
                 <Play className="w-4 h-4 mr-2" />
                 Play Now
               </Button>
               <Button
+                size="lg"
                 onClick={() => onAddToPlaylist(segment)}
+                className="min-w-[140px]"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add to SuperPod
