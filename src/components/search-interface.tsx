@@ -306,16 +306,28 @@ export function SearchInterface({
             {availableSources.map((source, index) => (
               <div 
                 key={source} 
-                className="flex items-center space-x-2 p-1 rounded"
+                className="flex items-center space-x-2 p-1 rounded focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleSource(source);
+                  }
+                }}
+                onClick={() => toggleSource(source)}
+                role="checkbox"
+                aria-checked={selectedSources.includes(source)}
+                aria-label={`${source} source`}
               >
                 <Checkbox
                   id={`source-${source}`}
                   checked={selectedSources.includes(source)}
                   onCheckedChange={() => toggleSource(source)}
+                  tabIndex={-1}
                 />
                 <label 
                   htmlFor={`source-${source}`}
-                  className="text-sm cursor-pointer"
+                  className="text-sm cursor-pointer pointer-events-none"
                 >
                   {source}
                 </label>
