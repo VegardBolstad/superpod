@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -39,7 +39,9 @@ export function SearchInterface({
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(-1);
   const [focusedSourceIndex, setFocusedSourceIndex] = useState(-1);
-  const [focusSection, setFocusSection] = useState<'categories' | 'sources'>('categories');
+  const [focusSection, setFocusSection] = useState<'search' | 'tags' | 'categories' | 'sources'>('search');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const tagSearchRef = useRef<HTMLDivElement>(null);
 
   const availableTags = [
     "technology", "business", "health", "science", "education", 
@@ -108,7 +110,7 @@ export function SearchInterface({
     setSelectedSources([]);
     setFocusedCategoryIndex(-1);
     setFocusedSourceIndex(-1);
-    setFocusSection('categories');
+    setFocusSection('search');
     onResetSearch();
   };
 
@@ -122,24 +124,38 @@ export function SearchInterface({
     if (e.key === 'Tab' && !e.shiftKey) {
       e.preventDefault();
       
-      if (focusSection === 'categories') {
-        if (focusedCategoryIndex < availableCategories.length - 1) {
-          setFocusedCategoryIndex(prev => prev + 1);
-        } else {
-          // Move to sources
-          setFocusSection('sources');
-          setFocusedCategoryIndex(-1);
-          setFocusedSourceIndex(0);
-        }
-      } else if (focusSection === 'sources') {
-        if (focusedSourceIndex < availableSources.length - 1) {
-          setFocusedSourceIndex(prev => prev + 1);
-        } else {
-          // Cycle back to categories
+      switch (focusSection) {
+        case 'search':
+          // Move to tags section
+          setFocusSection('tags');
+          break;
+          
+        case 'tags':
+          // Move to categories
           setFocusSection('categories');
-          setFocusedSourceIndex(-1);
           setFocusedCategoryIndex(0);
-        }
+          break;
+          
+        case 'categories':
+          if (focusedCategoryIndex < availableCategories.length - 1) {
+            setFocusedCategoryIndex(prev => prev + 1);
+          } else {
+            // Move to sources
+            setFocusSection('sources');
+            setFocusedCategoryIndex(-1);
+            setFocusedSourceIndex(0);
+          }
+          break;
+          
+        case 'sources':
+          if (focusedSourceIndex < availableSources.length - 1) {
+            setFocusedSourceIndex(prev => prev + 1);
+          } else {
+            // Cycle back to search
+            setFocusSection('search');
+            setFocusedSourceIndex(-1);
+          }
+          break;
       }
     }
 
@@ -175,12 +191,23 @@ export function SearchInterface({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Handle focus changes
+  useEffect(() => {
+    if (focusSection === 'search' && searchInputRef.current) {
+      searchInputRef.current.focus();
+    } else if (focusSection === 'tags' && tagSearchRef.current) {
+      const input = tagSearchRef.current.querySelector('input');
+      if (input) input.focus();
+    }
+  }, [focusSection]);
+
   return (
     <div className="space-y-4 p-4 bg-card rounded-lg border">
       <div className="flex gap-2">
-        <div className="relative flex-1">
+        <div className={`relative flex-1 ${focusSection === 'search' ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-md' : ''}`}>
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            ref={searchInputRef}
             placeholder="Search podcast content..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -219,6 +246,18 @@ export function SearchInterface({
         </div>
       )}
 
+      {/* Keyboard Navigation Help */}
+      {(focusSection === 'search' || focusSection === 'tags') && (
+        <div className="text-xs text-muted-foreground">
+          {focusSection === 'search' && (
+            <span>Press Tab to navigate to tags • Ctrl+Esc to reset • Ctrl+S to save</span>
+          )}
+          {focusSection === 'tags' && (
+            <span>Type to search tags • Tab to navigate to categories • Ctrl+Esc to reset • Ctrl+S to save</span>
+          )}
+        </div>
+      )}
+
       {/* Collapsible Filters */}
       <div className={`space-y-3 transition-all duration-300 ${isCollapsed ? 'max-h-0 overflow-hidden opacity-0' : 'max-h-[500px] opacity-100'}`}>
         <div>
@@ -238,12 +277,17 @@ export function SearchInterface({
           </div>
           
           {/* Smart Tag Search Component */}
-          <SmartTagSearch
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-            placeholder="Type to search tags..."
-            maxTags={8}
-          />
+          <div 
+            ref={tagSearchRef}
+            className={`${focusSection === 'tags' ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-md p-1' : ''}`}
+          >
+            <SmartTagSearch
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              placeholder="Type to search tags..."
+              maxTags={8}
+            />
+          </div>
           
           {/* Keep old static tags as fallback for now */}
           <details className="mt-4">
