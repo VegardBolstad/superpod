@@ -354,9 +354,12 @@ export class MockApiService {
   private loadSavedSearchesFromStorage() {
     try {
       const stored = localStorage.getItem('superpod_saved_searches');
+      console.log('Loading from localStorage:', stored);
       if (stored) {
         this.savedSearches = JSON.parse(stored);
+        console.log('Loaded saved searches:', this.savedSearches);
       } else {
+        console.log('No saved searches in localStorage, initializing with demo data');
         // Initialize with some demo searches only if none exist
         this.savedSearches = [
           {
@@ -388,7 +391,9 @@ export class MockApiService {
 
   private saveSavedSearchesToStorage() {
     try {
+      console.log('Saving to localStorage:', this.savedSearches);
       localStorage.setItem('superpod_saved_searches', JSON.stringify(this.savedSearches));
+      console.log('Successfully saved to localStorage');
     } catch (error) {
       console.error('Failed to save searches to storage:', error);
     }
