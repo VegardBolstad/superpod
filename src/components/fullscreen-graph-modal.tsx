@@ -67,6 +67,7 @@ export function FullscreenGraphModal({
             onAddToPlaylist={onAddToPlaylist}
             suggestions={suggestions}
             onSuggestionClick={onSuggestionClick}
+            onOpenFullscreen={undefined}
           />
         </div>
       </DialogContent>

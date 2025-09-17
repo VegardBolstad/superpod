@@ -200,23 +200,25 @@ export function KnowledgeGraph({
         </div>
       </div>
 
-      {/* Fullscreen Button */}
-      <div className="absolute top-4 right-4 z-20">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenFullscreen?.();
-          }}
-          className="h-8 w-8 p-0 bg-background/90 backdrop-blur-sm"
-          title="Fullscreen Graph View"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-          </svg>
-        </Button>
-      </div>
+      {/* Fullscreen Button - only show when not in fullscreen mode */}
+      {onOpenFullscreen && (
+        <div className="absolute top-4 right-4 z-20">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenFullscreen();
+            }}
+            className="h-8 w-8 p-0 bg-background/90 backdrop-blur-sm"
+            title="Fullscreen Graph View"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          </Button>
+        </div>
+      )}
 
       {/* Top suggestions */}
       <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-4 sm:px-20">
@@ -236,7 +238,7 @@ export function KnowledgeGraph({
       </div>
 
       {/* Left suggestions */}
-      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
+      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
         <div className="flex flex-col gap-2 mt-12">
           {suggestions.left.map(suggestion => (
             <Button
@@ -244,7 +246,7 @@ export function KnowledgeGraph({
               variant="outline"
               size="sm"
               onClick={() => onSuggestionClick(suggestion)}
-              className="bg-background/90 backdrop-blur-sm text-xs h-7 max-w-36 truncate"
+              className="bg-background/90 backdrop-blur-sm text-xs h-7 max-w-28 sm:max-w-36 truncate"
             >
               {suggestion}
             </Button>
@@ -253,7 +255,7 @@ export function KnowledgeGraph({
       </div>
 
       {/* Right suggestions */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10">
         <div className="flex flex-col gap-2 mt-12">
           {suggestions.right.map(suggestion => (
             <Button
@@ -261,7 +263,7 @@ export function KnowledgeGraph({
               variant="outline"
               size="sm"
               onClick={() => onSuggestionClick(suggestion)}
-              className="bg-background/90 backdrop-blur-sm text-xs h-7 max-w-36 truncate"
+              className="bg-background/90 backdrop-blur-sm text-xs h-7 max-w-28 sm:max-w-36 truncate"
             >
               {suggestion}
             </Button>
