@@ -397,12 +397,12 @@ export default function App() {
         switch (e.key) {
           case 'b':
             e.preventDefault();
-            setIsSidebarCollapsed(!isSidebarCollapsed);
+            setIsSidebarCollapsed(prev => !prev);
             setHasUserToggledSidebar(true);
             break;
           case 'f':
             e.preventDefault();
-            setIsSearchCollapsed(!isSearchCollapsed);
+            setIsSearchCollapsed(prev => !prev);
             setHasUserToggledSearch(true);
             break;
         }
