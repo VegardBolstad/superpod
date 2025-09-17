@@ -221,7 +221,7 @@ export function KnowledgeGraph({
       )}
 
       {/* Top suggestions */}
-      <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-4 sm:px-20">
+      <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-2xl px-32 sm:px-20">
         <div className="flex gap-2 flex-wrap justify-center">
           {suggestions.top.map(suggestion => (
             <Button
