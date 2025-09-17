@@ -37,7 +37,7 @@ export function FullscreenGraphModal({
 }: FullscreenGraphModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-none max-h-none w-screen h-screen p-0 gap-0 border-0 m-0">
+      <DialogContent className="!max-w-none !max-h-none !w-screen !h-screen !p-0 !gap-0 !border-0 !m-0 !top-0 !left-0 !translate-x-0 !translate-y-0 !rounded-none">
         {/* Accessibility components - visually hidden */}
         <DialogTitle className="sr-only">
           Fullscreen Knowledge Graph View
