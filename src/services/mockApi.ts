@@ -345,26 +345,54 @@ export class MockApiService {
   }
 
   // ===== SAVED SEARCHES =====
-  private savedSearches: SavedSearch[] = [
-    {
-      id: 'search_1',
-      name: 'AI & Innovation',
-      query: 'artificial intelligence',
-      tags: ['AI', 'innovation', 'technology'],
-      categories: ['Interview', 'Documentary'],
-      sources: ['Public', 'Spotify'],
-      createdAt: '2024-12-15T10:30:00Z'
-    },
-    {
-      id: 'search_2', 
-      name: 'Business Psychology',
-      query: 'leadership',
-      tags: ['psychology', 'business', 'leadership'],
-      categories: ['Case Study'],
-      sources: ['Public'],
-      createdAt: '2024-12-14T14:20:00Z'
+  private savedSearches: SavedSearch[] = [];
+
+  constructor() {
+    this.loadSavedSearchesFromStorage();
+  }
+
+  private loadSavedSearchesFromStorage() {
+    try {
+      const stored = localStorage.getItem('superpod_saved_searches');
+      if (stored) {
+        this.savedSearches = JSON.parse(stored);
+      } else {
+        // Initialize with some demo searches only if none exist
+        this.savedSearches = [
+          {
+            id: 'search_1',
+            name: 'AI & Innovation',
+            query: 'artificial intelligence',
+            tags: ['AI', 'innovation', 'technology'],
+            categories: ['Interview', 'Documentary'],
+            sources: ['Public', 'Spotify'],
+            createdAt: '2024-12-15T10:30:00Z'
+          },
+          {
+            id: 'search_2', 
+            name: 'Business Psychology',
+            query: 'leadership',
+            tags: ['psychology', 'business', 'leadership'],
+            categories: ['Case Study'],
+            sources: ['Public'],
+            createdAt: '2024-12-14T14:20:00Z'
+          }
+        ];
+        this.saveSavedSearchesToStorage();
+      }
+    } catch (error) {
+      console.error('Failed to load saved searches from storage:', error);
+      this.savedSearches = [];
     }
-  ];
+  }
+
+  private saveSavedSearchesToStorage() {
+    try {
+      localStorage.setItem('superpod_saved_searches', JSON.stringify(this.savedSearches));
+    } catch (error) {
+      console.error('Failed to save searches to storage:', error);
+    }
+  }
 
   async getSavedSearches() {
     await delay(300);
@@ -398,6 +426,8 @@ export class MockApiService {
         this.savedSearches = this.savedSearches.slice(0, 10);
       }
 
+      this.saveSavedSearchesToStorage(); // Persist to localStorage
+
       return {
         success: true,
         data: newSearch
@@ -416,6 +446,7 @@ export class MockApiService {
     }
 
     this.savedSearches.splice(index, 1);
+    this.saveSavedSearchesToStorage(); // Persist to localStorage
 
     return {
       success: true,

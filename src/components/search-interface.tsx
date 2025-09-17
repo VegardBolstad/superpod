@@ -116,8 +116,11 @@ export function SearchInterface({
 
   // Keyboard navigation handlers
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Only handle shortcuts when not typing in an input
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+    // Only handle shortcuts when not typing in an input or interacting with details/summary
+    if (e.target instanceof HTMLInputElement || 
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLDetailsElement ||
+        e.target instanceof HTMLElement && e.target.tagName === 'SUMMARY') {
       return;
     }
 
@@ -290,8 +293,8 @@ export function SearchInterface({
           </div>
           
           {/* Keep old static tags as fallback for now */}
-          <details className="mt-4">
-            <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+          <details className="mt-4" tabIndex={-1}>
+            <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground" tabIndex={-1}>
               Browse all tags
             </summary>
             <div className="flex flex-wrap gap-2 mt-2">

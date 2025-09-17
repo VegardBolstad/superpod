@@ -151,190 +151,194 @@ export function SuperPodSidebar({
         </Button>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
-          {/* Current Playlist */}
-          {currentPlaylist.length > 0 && (
-            <Card className="p-3 bg-sidebar-accent">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sidebar-accent-foreground">
-                  Current Playlist
-                </h3>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-sidebar-accent-foreground hover:bg-sidebar-accent"
-                    onClick={onOpenAISettings}
-                    title="AI Narration Settings"
-                  >
-                    <svg
-                      className="w-3 h-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  </Button>
-                  <Badge
-                    variant="secondary"
-                    className="text-xs"
-                  >
-                    {currentPlaylist.length} segments
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <DraggablePlaylist
-                  segments={currentPlaylist}
-                  onReorder={onReorderPlaylist}
-                />
-              </div>
-
-              {isCreating ? (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    placeholder="SuperPod name..."
-                    value={newPlaylistName}
-                    onChange={(e) =>
-                      setNewPlaylistName(e.target.value)
-                    }
-                    className="w-full px-2 py-1 text-xs bg-background border rounded"
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleSavePlaylist()
-                    }
-                  />
-                  <div className="flex gap-1">
+      <div className="flex flex-col flex-1 min-h-0">
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-4">
+            {/* Current Playlist */}
+            {currentPlaylist.length > 0 && (
+              <Card className="p-3 bg-sidebar-accent">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sidebar-accent-foreground">
+                    Current Playlist
+                  </h3>
+                  <div className="flex items-center gap-2">
                     <Button
+                      variant="ghost"
                       size="sm"
-                      onClick={handleSavePlaylist}
-                      className="flex-1 text-xs h-7"
+                      className="h-6 w-6 p-0 text-sidebar-accent-foreground hover:bg-sidebar-accent"
+                      onClick={onOpenAISettings}
+                      title="AI Narration Settings"
                     >
-                      Save
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsCreating(false)}
-                      className="text-xs h-7"
+                    <Badge
+                      variant="secondary"
+                      className="text-xs"
                     >
-                      Cancel
-                    </Button>
+                      {currentPlaylist.length} segments
+                    </Badge>
                   </div>
                 </div>
-              ) : (
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    onClick={() => setIsCreating(true)}
-                    className="flex-1 text-xs h-7"
-                  >
-                    Save SuperPod
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={onClearPlaylist}
-                    className="text-xs h-7"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+
+                <div className="mb-3">
+                  <DraggablePlaylist
+                    segments={currentPlaylist}
+                    onReorder={onReorderPlaylist}
+                  />
                 </div>
-              )}
-            </Card>
-          )}
 
-          <Separator />
-
-          {/* Saved SuperPods */}
-          <div className="space-y-3">
-            {superPods.length === 0 &&
-            currentPlaylist.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <FolderOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No SuperPods yet</p>
-                <p className="text-xs">
-                  Search and collect segments to create your
-                  first SuperPod
-                </p>
-              </div>
-            ) : (
-              superPods.map((superPod) => (
-                <Card
-                  key={superPod.id}
-                  className="p-3 hover:bg-sidebar-accent/50 transition-colors"
-                >
+                {isCreating ? (
                   <div className="space-y-2">
-                    <div className="flex items-start justify-between">
-                      <h4 className="text-sm text-sidebar-foreground line-clamp-2">
-                        {superPod.name}
-                      </h4>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          onDeleteSuperPod(superPod.id)
-                        }
-                        className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      <span>{superPod.totalDuration}</span>
-                      <span>•</span>
-                      <span>
-                        {superPod.segments.length} segments
-                      </span>
-                    </div>
-
+                    <input
+                      type="text"
+                      placeholder="SuperPod name..."
+                      value={newPlaylistName}
+                      onChange={(e) =>
+                        setNewPlaylistName(e.target.value)
+                      }
+                      className="w-full px-2 py-1 text-xs bg-background border rounded"
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleSavePlaylist()
+                      }
+                    />
                     <div className="flex gap-1">
                       <Button
                         size="sm"
-                        onClick={() => onPlaySuperPod(superPod)}
-                        className="flex-1 h-7 text-xs"
+                        onClick={handleSavePlaylist}
+                        className="flex-1 text-xs h-7"
                       >
-                        <Play className="w-3 h-3 mr-1" />
-                        Play
+                        Save
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => onViewSuperPod(superPod)}
-                        className="h-7 text-xs px-2"
-                        title="View segments and summary"
+                        onClick={() => setIsCreating(false)}
+                        className="text-xs h-7"
                       >
-                        <FolderOpen className="w-3 h-3" />
+                        Cancel
                       </Button>
                     </div>
                   </div>
-                </Card>
-              ))
+                ) : (
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      onClick={() => setIsCreating(true)}
+                      className="flex-1 text-xs h-7"
+                    >
+                      Save SuperPod
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={onClearPlaylist}
+                      className="text-xs h-7"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+              </Card>
             )}
-          </div>
 
-          {/* Saved Searches */}
-          {onLoadSavedSearch && (
+            <Separator />
+
+            {/* Saved SuperPods */}
+            <div className="space-y-3">
+              {superPods.length === 0 &&
+              currentPlaylist.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FolderOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No SuperPods yet</p>
+                  <p className="text-xs">
+                    Search and collect segments to create your
+                    first SuperPod
+                  </p>
+                </div>
+              ) : (
+                superPods.map((superPod) => (
+                  <Card
+                    key={superPod.id}
+                    className="p-3 hover:bg-sidebar-accent/50 transition-colors"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <h4 className="text-sm text-sidebar-foreground line-clamp-2">
+                          {superPod.name}
+                        </h4>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            onDeleteSuperPod(superPod.id)
+                          }
+                          className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        <span>{superPod.totalDuration}</span>
+                        <span>•</span>
+                        <span>
+                          {superPod.segments.length} segments
+                        </span>
+                      </div>
+
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          onClick={() => onPlaySuperPod(superPod)}
+                          className="flex-1 h-7 text-xs"
+                        >
+                          <Play className="w-3 h-3 mr-1" />
+                          Play
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onViewSuperPod(superPod)}
+                          className="h-7 text-xs px-2"
+                          title="View segments and summary"
+                        >
+                          <FolderOpen className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        </ScrollArea>
+
+        {/* Saved Searches - Fixed at bottom */}
+        {onLoadSavedSearch && (
+          <div className="border-t bg-sidebar/50 p-4">
             <SavedSearches onLoadSearch={onLoadSavedSearch} />
-          )}
-        </div>
-      </ScrollArea>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
