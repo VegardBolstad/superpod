@@ -331,6 +331,12 @@ export default function App() {
     toast.info("Search reset");
   };
 
+  const handleLoadSavedSearch = (search: any) => {
+    // Load the saved search parameters and trigger search
+    handleSearch(search.query, search.tags, search.categories, search.sources);
+    toast.success(`Loaded search: "${search.name}"`);
+  };
+
   const handleReorderPlaylist = (reorderedSegments: PodcastSegment[]) => {
     setCurrentPlaylist(reorderedSegments);
   };
@@ -568,6 +574,7 @@ export default function App() {
             onSaveCurrentPlaylist={handleSaveCurrentPlaylist}
             onReorderPlaylist={handleReorderPlaylist}
             onOpenAISettings={() => setIsAISettingsOpen(true)}
+            onLoadSavedSearch={handleLoadSavedSearch}
             isCollapsed={isSidebarCollapsed}
             onToggleCollapse={() => {
               setIsSidebarCollapsed(!isSidebarCollapsed);

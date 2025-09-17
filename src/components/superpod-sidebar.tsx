@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { DraggablePlaylist } from "./draggable-playlist";
+import { SavedSearches } from "./saved-searches";
 import {
   Play,
   Plus,
@@ -47,6 +48,7 @@ interface SuperPodSidebarProps {
     reorderedSegments: PodcastSegment[],
   ) => void;
   onOpenAISettings: () => void;
+  onLoadSavedSearch?: (search: any) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
@@ -62,6 +64,7 @@ export function SuperPodSidebar({
   onSaveCurrentPlaylist,
   onReorderPlaylist,
   onOpenAISettings,
+  onLoadSavedSearch,
   isCollapsed = false,
   onToggleCollapse,
 }: SuperPodSidebarProps) {
@@ -325,6 +328,11 @@ export function SuperPodSidebar({
               ))
             )}
           </div>
+
+          {/* Saved Searches */}
+          {onLoadSavedSearch && (
+            <SavedSearches onLoadSearch={onLoadSavedSearch} />
+          )}
         </div>
       </ScrollArea>
     </div>

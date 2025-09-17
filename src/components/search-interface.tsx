@@ -38,6 +38,8 @@ export function SearchInterface({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(-1);
+  const [focusedSourceIndex, setFocusedSourceIndex] = useState(-1);
+  const [focusSection, setFocusSection] = useState<'categories' | 'sources'>('categories');
 
   const availableTags = [
     "technology", "business", "health", "science", "education", 
@@ -105,6 +107,8 @@ export function SearchInterface({
     setSelectedCategories([]);
     setSelectedSources([]);
     setFocusedCategoryIndex(-1);
+    setFocusedSourceIndex(-1);
+    setFocusSection('categories');
     onResetSearch();
   };
 
@@ -117,16 +121,38 @@ export function SearchInterface({
 
     if (e.key === 'Tab' && !e.shiftKey) {
       e.preventDefault();
-      setFocusedCategoryIndex(prev => {
-        const next = prev + 1;
-        return next >= availableCategories.length ? 0 : next;
-      });
+      
+      if (focusSection === 'categories') {
+        if (focusedCategoryIndex < availableCategories.length - 1) {
+          setFocusedCategoryIndex(prev => prev + 1);
+        } else {
+          // Move to sources
+          setFocusSection('sources');
+          setFocusedCategoryIndex(-1);
+          setFocusedSourceIndex(0);
+        }
+      } else if (focusSection === 'sources') {
+        if (focusedSourceIndex < availableSources.length - 1) {
+          setFocusedSourceIndex(prev => prev + 1);
+        } else {
+          // Cycle back to categories
+          setFocusSection('categories');
+          setFocusedSourceIndex(-1);
+          setFocusedCategoryIndex(0);
+        }
+      }
     }
 
-    if (e.key === ' ' && focusedCategoryIndex >= 0) {
+    if (e.key === ' ') {
       e.preventDefault();
-      const category = availableCategories[focusedCategoryIndex];
-      toggleCategory(category);
+      
+      if (focusSection === 'categories' && focusedCategoryIndex >= 0) {
+        const category = availableCategories[focusedCategoryIndex];
+        toggleCategory(category);
+      } else if (focusSection === 'sources' && focusedSourceIndex >= 0) {
+        const source = availableSources[focusedSourceIndex];
+        toggleSource(source);
+      }
     }
 
     if (e.ctrlKey || e.metaKey) {
@@ -141,7 +167,7 @@ export function SearchInterface({
           break;
       }
     }
-  }, [focusedCategoryIndex, availableCategories, toggleCategory, handleReset, onSaveSearch]);
+  }, [focusedCategoryIndex, focusedSourceIndex, focusSection, availableCategories, availableSources, toggleCategory, toggleSource, handleReset, onSaveSearch]);
 
   // Add keyboard event listeners
   useEffect(() => {
@@ -273,9 +299,9 @@ export function SearchInterface({
               </Badge>
             ))}
           </div>
-          {focusedCategoryIndex >= 0 && (
+          {focusSection === 'categories' && focusedCategoryIndex >= 0 && (
             <div className="text-xs text-muted-foreground mt-1">
-              Press Space to select/deselect • Tab to cycle • Ctrl+Esc to reset • Ctrl+S to save
+              Press Space to toggle • Tab to cycle through categories/sources • Ctrl+Esc to reset • Ctrl+S to save
             </div>
           )}
         </div>
@@ -300,8 +326,15 @@ export function SearchInterface({
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
-            {availableSources.map(source => (
-              <div key={source} className="flex items-center space-x-2">
+            {availableSources.map((source, index) => (
+              <div 
+                key={source} 
+                className={`flex items-center space-x-2 p-1 rounded transition-all ${
+                  focusSection === 'sources' && focusedSourceIndex === index
+                    ? 'ring-2 ring-primary ring-offset-2 ring-offset-background bg-accent/50'
+                    : ''
+                }`}
+              >
                 <Checkbox
                   id={`source-${source}`}
                   checked={selectedSources.includes(source)}
@@ -316,6 +349,11 @@ export function SearchInterface({
               </div>
             ))}
           </div>
+          {focusSection === 'sources' && focusedSourceIndex >= 0 && (
+            <div className="text-xs text-muted-foreground mt-1">
+              Press Space to toggle • Tab to cycle through categories/sources • Ctrl+Esc to reset • Ctrl+S to save
+            </div>
+          )}
         </div>
         
         {/* Control Buttons */}
