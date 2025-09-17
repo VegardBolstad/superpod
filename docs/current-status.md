@@ -185,3 +185,4 @@ The minor TypeScript warnings are cosmetic and don't impact functionality. Your 
 ---
 
 *Happy coding! 🚀*
+
