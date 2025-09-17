@@ -65,6 +65,7 @@ export default function App() {
   const [previewSegment, setPreviewSegment] = useState<PodcastSegment | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentQuery, setCurrentQuery] = useState("");
+  const [savedSearchesRefreshKey, setSavedSearchesRefreshKey] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -333,6 +334,8 @@ export default function App() {
         const response = await mockApiService.saveSearch(searchData);
         if (response.success) {
           toast.success(`Search "${searchName}" saved to bookmarks`);
+          // Trigger refresh of saved searches component
+          setSavedSearchesRefreshKey(prev => prev + 1);
         } else {
           toast.error("Failed to save search");
         }
@@ -596,6 +599,7 @@ export default function App() {
             onReorderPlaylist={handleReorderPlaylist}
             onOpenAISettings={() => setIsAISettingsOpen(true)}
             onLoadSavedSearch={handleLoadSavedSearch}
+            savedSearchesRefreshKey={savedSearchesRefreshKey}
             isCollapsed={isSidebarCollapsed}
             onToggleCollapse={() => {
               setIsSidebarCollapsed(!isSidebarCollapsed);

@@ -49,6 +49,7 @@ interface SuperPodSidebarProps {
   ) => void;
   onOpenAISettings: () => void;
   onLoadSavedSearch?: (search: any) => void;
+  savedSearchesRefreshKey?: number;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
@@ -65,6 +66,7 @@ export function SuperPodSidebar({
   onReorderPlaylist,
   onOpenAISettings,
   onLoadSavedSearch,
+  savedSearchesRefreshKey,
   isCollapsed = false,
   onToggleCollapse,
 }: SuperPodSidebarProps) {
@@ -335,7 +337,10 @@ export function SuperPodSidebar({
         {/* Saved Searches - Fixed at bottom */}
         {onLoadSavedSearch && (
           <div className="bg-sidebar/50 p-4">
-            <SavedSearches onLoadSearch={onLoadSavedSearch} />
+            <SavedSearches 
+              onLoadSearch={onLoadSavedSearch} 
+              refreshKey={savedSearchesRefreshKey}
+            />
           </div>
         )}
       </div>

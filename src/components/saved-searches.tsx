@@ -18,17 +18,18 @@ import { SavedSearch } from "../types/api";
 
 interface SavedSearchesProps {
   onLoadSearch: (search: SavedSearch) => void;
+  refreshKey?: number;
 }
 
-export function SavedSearches({ onLoadSearch }: SavedSearchesProps) {
+export function SavedSearches({ onLoadSearch, refreshKey }: SavedSearchesProps) {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(true);
 
-  // Load saved searches on mount
+  // Load saved searches on mount and when refreshKey changes
   useEffect(() => {
     loadSavedSearches();
-  }, []);
+  }, [refreshKey]);
 
   const loadSavedSearches = async () => {
     setIsLoading(true);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -37,11 +37,6 @@ export function SearchInterface({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
-  const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(-1);
-  const [focusedSourceIndex, setFocusedSourceIndex] = useState(-1);
-  const [focusSection, setFocusSection] = useState<'search' | 'tags' | 'categories' | 'sources'>('search');
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const tagSearchRef = useRef<HTMLDivElement>(null);
 
   const availableTags = [
     "technology", "business", "health", "science", "education", 
@@ -108,70 +103,14 @@ export function SearchInterface({
     setSelectedTags([]);
     setSelectedCategories([]);
     setSelectedSources([]);
-    setFocusedCategoryIndex(-1);
-    setFocusedSourceIndex(-1);
-    setFocusSection('search');
     onResetSearch();
   };
 
-  // Keyboard navigation handlers
+  // Keep only essential keyboard shortcuts
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Only handle shortcuts when not typing in an input or interacting with details/summary
-    if (e.target instanceof HTMLInputElement || 
-        e.target instanceof HTMLTextAreaElement ||
-        e.target instanceof HTMLDetailsElement ||
-        e.target instanceof HTMLElement && e.target.tagName === 'SUMMARY') {
+    // Only handle global shortcuts when not typing in inputs
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       return;
-    }
-
-    if (e.key === 'Tab' && !e.shiftKey) {
-      e.preventDefault();
-      
-      switch (focusSection) {
-        case 'search':
-          // Move to tags section
-          setFocusSection('tags');
-          break;
-          
-        case 'tags':
-          // Move to categories
-          setFocusSection('categories');
-          setFocusedCategoryIndex(0);
-          break;
-          
-        case 'categories':
-          if (focusedCategoryIndex < availableCategories.length - 1) {
-            setFocusedCategoryIndex(prev => prev + 1);
-          } else {
-            // Move to sources
-            setFocusSection('sources');
-            setFocusedCategoryIndex(-1);
-            setFocusedSourceIndex(0);
-          }
-          break;
-          
-        case 'sources':
-          if (focusedSourceIndex < availableSources.length - 1) {
-            setFocusedSourceIndex(prev => prev + 1);
-          } else {
-            // Cycle back to search
-            setFocusSection('search');
-            setFocusedSourceIndex(-1);
-          }
-          break;
-      }
-    }
-
-    if (e.key === ' ') {
-      e.preventDefault();
-      
-      if (focusSection === 'categories' && focusedCategoryIndex >= 0) {
-        const category = availableCategories[focusedCategoryIndex];
-        toggleCategory(category);
-      } else if (focusSection === 'sources' && focusedSourceIndex >= 0) {
-        const source = availableSources[focusedSourceIndex];
-        toggleSource(source);
-      }
     }
 
     if (e.ctrlKey || e.metaKey) {
@@ -182,11 +121,13 @@ export function SearchInterface({
           break;
         case 's':
           e.preventDefault();
-          onSaveSearch();
+          if (onSaveSearch) {
+            onSaveSearch();
+          }
           break;
       }
     }
-  }, [focusedCategoryIndex, focusedSourceIndex, focusSection, availableCategories, availableSources, toggleCategory, toggleSource, handleReset, onSaveSearch]);
+  }, [handleReset, onSaveSearch]);
 
   // Add keyboard event listeners
   useEffect(() => {
@@ -194,15 +135,6 @@ export function SearchInterface({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // Handle focus changes
-  useEffect(() => {
-    if (focusSection === 'search' && searchInputRef.current) {
-      searchInputRef.current.focus();
-    } else if (focusSection === 'tags' && tagSearchRef.current) {
-      const input = tagSearchRef.current.querySelector('input');
-      if (input) input.focus();
-    }
-  }, [focusSection]);
 
   return (
     <div className="space-y-4 p-4 bg-card rounded-lg border">
@@ -210,7 +142,6 @@ export function SearchInterface({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            ref={searchInputRef}
             placeholder="Search podcast content..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -269,14 +200,12 @@ export function SearchInterface({
           </div>
           
           {/* Smart Tag Search Component */}
-          <div ref={tagSearchRef}>
-            <SmartTagSearch
-              selectedTags={selectedTags}
-              onTagsChange={setSelectedTags}
-              placeholder="Type to search tags..."
-              maxTags={8}
-            />
-          </div>
+          <SmartTagSearch
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+            placeholder="Type to search tags..."
+            maxTags={8}
+          />
           
           {/* Keep old static tags as fallback for now */}
           <details className="mt-4" tabIndex={-1}>
